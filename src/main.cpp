@@ -1,5 +1,6 @@
 #include "state_files/umbrella_header.h"
+using namespace pong::state_files;
 
 int main() {
-    state_files::PlayerData data = state_files::PlayerData(10,10);
+
 }

@@ -5,13 +5,12 @@
 #ifndef PONG_FEILD_DATA_H
 #define PONG_FEILD_DATA_H
 
-
-namespace state_files {
+namespace pong::state_files {
     struct FieldData {
+    public:
         int player_offset, field_width, field_height;
-        FieldData(int player_offset = 30, int field_width = 120, int field_height = 60);
+        FieldData(int player_offset = 30, int field_width = 120, int field_height = 80);
     };
 }
-
 
 #endif //PONG_FEILD_DATA_H

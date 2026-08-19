@@ -5,14 +5,15 @@
 #ifndef PONG_BALL_DATA_H
 #define PONG_BALL_DATA_H
 
-
-namespace state_files {
+namespace pong::state_files {
     struct BallData {
+    public:
         int radius, x = 0, y = 0;
-        float angle = 0, vel = 0;
-        BallData(int radius);
+        float angle = 0, vel = 10;
+        BallData(int radius = 5):
+            radius(radius)
+            {};
     };
 }
-
 
 #endif //PONG_BALL_DATA_H

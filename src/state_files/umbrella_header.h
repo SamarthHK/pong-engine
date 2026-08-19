@@ -7,5 +7,7 @@
 
 #include "./player_data.h"
 #include "./ball_data.h"
+#include "./field_data.h"
+#include "./physics_data.h"
 
 #endif //PONG_UMBRELLA_HEADER_H
