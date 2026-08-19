@@ -5,33 +5,17 @@ using namespace std;
 
 //Function declaration
 int main() {
-    //Creating a basic calculator
-    int x, y, opperand, output;
-    cout << "Enter 2 numbers number" << endl;
-    //Cin restricts input to the type of x and y
-    cin >> x >> y;
+    //Memory management:
+    string food = "Pizza";
+    string* ref = &food;
+    cout << *ref << " Mem address: " << ref << endl;
+    *ref = "Heh"; //Setting value (Not reference, but actually value) to heh from pizza
+    cout << food << " Mem address: " << &food << endl;
+    //They both will have the same memory address!!!
 
-    cout << "Enter number for thy function of choice:\n" << "\t-1 for addition\n" << "\t-2 for subtraction\n" << "\t-3 for multiplication\n" << "\t-4 for division\n";
-    cin >> opperand;
+    //Allocating and de-allocating memory:
+    int* ptr = new int; //Allocating, can only allocate to a pointer
+    cout << *ptr << " Mem address: " << ptr << endl;
+    delete ptr; // de-allocating
 
-    //I do now >:)
-    switch (opperand) {
-        case 1:
-            output = x + y;
-            break;
-        case 2:
-            output = x - y;
-            break;
-        case 3:
-            output = x * y;
-            break;
-        case 4:
-            output = x / y;
-            break;
-        default:
-            return 1;
-    }
-
-    cout << "Thou result is: " << output << endl;
-    return 0;
 }
