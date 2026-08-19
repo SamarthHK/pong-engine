@@ -3,4 +3,5 @@ project(pong)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(pong main.cpp)
+add_executable(pong src/main.cpp
+)
