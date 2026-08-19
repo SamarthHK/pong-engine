@@ -1,27 +1,37 @@
 //Header files tell program the function declaration (Inputs, outputs)
 #include <iostream>
-#include <string>
 //Using a namespace is same in C#, means i can use the programs from this lib (Or directory)
 using namespace std;
 
 //Function declaration
 int main() {
-    //Data types:
-    bool temp_bool;    //1 byte
-    char temp_char;    //1 byte
-    int temp_int;      //2 or 4 byte
-    float temp_float;  //4 bytes
-    double temp_double;//8 bytes
+    //Creating a basic calculator
+    int x, y, opperand, output;
+    cout << "Enter 2 numbers number" << endl;
+    //Cin restricts input to the type of x and y
+    cin >> x >> y;
 
-    //Just like C you can assign chars ints using ascii
-    char x = 69, y = 70, z = 71;
-    cout << x << y << z << endl;
+    cout << "Enter number for thy function of choice:\n" << "\t-1 for addition\n" << "\t-2 for subtraction\n" << "\t-3 for multiplication\n" << "\t-4 for division\n";
+    cin >> opperand;
 
-    //Just like C, strings arent a part of the language itself and need to be added
-    string name = "Samarth Harish Kumar";
-    cout << name << endl;
+    //I do now >:)
+    switch (opperand) {
+        case 1:
+            output = x + y;
+            break;
+        case 2:
+            output = x - y;
+            break;
+        case 3:
+            output = x * y;
+            break;
+        case 4:
+            output = x / y;
+            break;
+        default:
+            return 1;
+    }
 
-    //C++ has something like var from java and C#, its called auto
-    auto number = 5;
-    cout << typeid(number).name() << endl;
+    cout << "Thou result is: " << output << endl;
+    return 0;
 }
