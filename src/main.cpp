@@ -5,19 +5,32 @@ using namespace std;
 
 //Function declaration
 int main() {
-    //Variable creation and assignment are just like C
-    int age;
-    age = 15;
-    //You can print multiple datatypes!!!
-    std::cout << "My age happens to be... " << age << std::endl;
-    //Multi-variable creation and assignment
-    int x = 21, y = 16, z = 40;
-    std::cout << "Before Values:\n" << "x: " << x << " Y: " << y << " Z: " << z << std::endl;
-    //Chained assignment
-    x = y = z = 10;
-    std::cout << "After Values:\n" << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
-    //Way to assign a final or constant value, just like C#
-    const int fav_number = 69;
-    std::cout << "Favorite number: " << fav_number << std::endl;
+    //Creating a basic calculator
+    int x, y, opperand, output;
+    cout << "Enter 2 numbers number" << endl;
+    //Cin restricts input to the type of x and y
+    cin >> x >> y;
 
+    cout << "Enter number for thy function of choice:\n" << "\t-1 for addition\n" << "\t-2 for subtraction\n" << "\t-3 for multiplication\n" << "\t-4 for division\n";
+    cin >> opperand;
+
+    //Idk how to use Match case :(
+    if (opperand == 1) {
+        output = x + y;
+    }
+    else if (opperand == 2) {
+        output = x - y;
+    }
+    else if (opperand == 3) {
+        output = x * y;
+    }
+    else if (opperand == 4) {
+        output = x / y;
+    }
+    else {
+        return 1;
+    }
+
+    cout << "Thou result is: " << output << endl;
+    return 0;
 }
