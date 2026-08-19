@@ -11,7 +11,10 @@ namespace state_files {
         int width, height;
         float x = 0, y = 0, y_vel = 0;
     public:
-        PlayerData(int width, int height);
+        PlayerData(int width = 10, int height = 40):
+            width(width),
+            height(height)
+            {};
     };
 }
 
