@@ -13,4 +13,5 @@ add_executable(pong src/main.cpp
         src/game.cpp
         src/game.h
         src/move.h
+        src/wall.h
 )

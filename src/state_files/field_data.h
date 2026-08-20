@@ -9,7 +9,11 @@ namespace pong::state_files {
     struct FieldData {
     public:
         int player_offset, field_width, field_height;
-        FieldData(int player_offset = 30, int field_width = 120, int field_height = 80);
+        FieldData(int player_offset = 30, int field_width = 120, int field_height = 80):
+            player_offset(player_offset),
+            field_width(field_width),
+            field_height(field_height)
+            {};
     };
 }
 
