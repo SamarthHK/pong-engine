@@ -46,8 +46,22 @@ namespace pong {
     }
 
     void Game::move_player(PlayerData &player,WallGroup &walls, Move move) {
-        player.y += static_cast<int>(move) * physics.player_accel;
-        player.y *= physics.player_accel;
+        player.y_vel += static_cast<int>(move) * physics.player_accel;
+        player.y_vel *= physics.player_accel;
+        player.y += player.y_vel;
+
+        int upper_bound = field.field_height/2;
+        int lower_bound = field.field_height/-2;
+
+        if (player.y < lower_bound) {
+            player.y = lower_bound;
+            player.y_vel = 0;
+        }
+        else if (player.y > upper_bound) {
+            player.y = upper_bound;
+            player.y_vel = 0;
+        }
+
         walls.assign_walls(0, 0, player.width, player.height);
     }
 }
