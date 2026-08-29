@@ -7,7 +7,7 @@
 
 #include "./state_files/umbrella_header.h"
 #include "./move.h"
-#include "wall.h"
+#include "state_files/wall.h"
 
 using namespace pong::state_files;
 

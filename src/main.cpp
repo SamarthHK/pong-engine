@@ -1,10 +1,13 @@
 #include "state_files/umbrella_header.h"
 #include <SFML/Graphics.hpp>
+#include "game.h"
 
 using namespace pong::state_files;
 
 int main()
 {
+
+
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     unsigned screenWidth = desktopMode.size.x;
     unsigned screenHeight = desktopMode.size.y;
@@ -12,7 +15,9 @@ int main()
     unsigned windowHeight = 480;
     unsigned frameRate = 60;
 
-    sf::Window window(sf::VideoMode({windowWidth, windowHeight}), "pong",sf::Style::Titlebar,sf::State::Windowed);
+    pong::Game game = pong::Game(10,10,100,windowWidth,windowHeight,80,0.5f,10.0f,1.0f,0.1f);
+
+    sf::RenderWindow window(sf::VideoMode({windowWidth, windowHeight}), "pong",sf::Style::Titlebar,sf::State::Windowed);
     window.setFramerateLimit(frameRate);
     window.setTitle("pong");
     window.setPosition(sf::Vector2i((screenWidth - windowWidth)/2, (screenHeight - windowHeight)/2));
@@ -23,30 +28,28 @@ int main()
         while (const std::optional event = window.pollEvent())
         {
             // "close requested" event: we close the window
-            if (event->is<sf::Event::Closed>()) {
+            if (event->is<sf::Event::Closed>())
                 window.close();
-            }else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                switch (keyPressed->scancode) {
-                    case sf::Keyboard::Scancode::Escape:
-                        window.close();
-                        break;
-                    case sf::Keyboard::Scancode::Left:
-                        window.setPosition(sf::Vector2i(window.getPosition().x -screenWidth/100, window.getPosition().y));
-                        break;
-                    case sf::Keyboard::Scancode::Right:
-                        window.setPosition(sf::Vector2i(window.getPosition().x +screenWidth/100, window.getPosition().y));
-                        break;
-                    case sf::Keyboard::Scancode::Up:
-                        window.setPosition(sf::Vector2i(window.getPosition().x, window.getPosition().y -screenHeight/100));
-                        break;
-                    case sf::Keyboard::Scancode::Down:
-                        window.setPosition(sf::Vector2i(window.getPosition().x, window.getPosition().y +screenHeight/100));
-                        break;
-                    default:
-                        break;
-                }
-            }
 
+            window.clear(sf::Color::Black);
+            pong::StepResult step_result = game.step(pong::Move::NONE, pong::Move::NONE);
+
+            sf::CircleShape ball(game.ball.radius);
+            ball.setFillColor(sf::Color::Yellow);
+            ball.setPosition(sf::Vector2f(step_result.ball_x, step_result.ball_y));
+            window.draw(ball);
+
+            sf::RectangleShape paddleOne(sf::Vector2f(game.player_one.width, game.player_one.height));
+            paddleOne.setFillColor(sf::Color::Blue);
+            paddleOne.setPosition(sf::Vector2f(step_result.player_one_y+game.player_one.width/2, step_result.player_one_y+game.player_one.height/2));
+            window.draw(paddleOne);
+
+            sf::RectangleShape paddleTwo(sf::Vector2f(game.player_two.width, game.player_two.height));
+            paddleTwo.setFillColor(sf::Color::Blue);
+            paddleTwo.setPosition(sf::Vector2f(step_result.player_two_y+game.player_two.width/2, step_result.player_two_y+game.player_two.height/2));
+            window.draw(paddleTwo);
+
+            window.display();
         }
 
     }

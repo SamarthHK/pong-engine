@@ -13,7 +13,9 @@ add_executable(pong src/main.cpp
         src/game.cpp
         src/game.h
         src/move.h
-        src/wall.h
+		src/state_files/wall.h
+		src/render.cpp
+		src/render.h
 )
 find_package(SFML 3.0.2 REQUIRED COMPONENTS Graphics)
 target_link_libraries(pong SFML::Graphics)
