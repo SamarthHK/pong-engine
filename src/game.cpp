@@ -214,6 +214,20 @@ namespace {
 
         return nudged;
     }
+
+    pong::StepResult make_step_result(const pong::Game &game) {
+        return {
+            game.ball.x,
+            game.ball.y,
+            game.ball.x_vel,
+            game.ball.y_vel,
+            game.player_one.y,
+            game.player_one.y_vel,
+            game.player_two.y,
+            game.player_two.y_vel,
+            game.game_over
+        };
+    }
 }
 
 namespace pong {
@@ -227,6 +241,12 @@ namespace pong {
         const float normalized_y = nearly_zero(raw_length) ? 0.0f : raw_y / raw_length;
         ball.x_vel = normalized_x * ball.vel;
         ball.y_vel = normalized_y * ball.vel;
+
+        initial_ball_x = ball.x;
+        initial_ball_y = ball.y;
+        initial_ball_x_vel = ball.x_vel;
+        initial_ball_y_vel = ball.y_vel;
+        initial_ball_vel = ball.vel;
 
         field.field_width = field_width;
         field.field_height = field_height;
@@ -242,12 +262,15 @@ namespace pong {
         physics.player_accel = player_accel;
         physics.ball_accel = ball_accel;
 
-        field_walls.assign_walls(0, 0, field_width, field_height);
-        move_player(player_one, p1_walls, Move::NONE);
-        move_player(player_two, p2_walls, Move::NONE);
+        initial_player_one_y = player_one.y;
+        initial_player_two_y = player_two.y;
+        initial_player_one_y_vel = player_one.y_vel;
+        initial_player_two_y_vel = player_two.y_vel;
+
+        reset();
     };
 
-    void Game::step(Move player_one_move, Move player_two_move) {
+    StepResult Game::step(Move player_one_move, Move player_two_move) {
         move_player(player_one, p1_walls, player_one_move);
         move_player(player_two, p2_walls, player_two_move);
 
@@ -281,8 +304,29 @@ namespace pong {
         ball.y = position.y;
         ball.x_vel = velocity.x;
         ball.y_vel = velocity.y;
+        return make_step_result(*this);
+    }
 
+    void Game::reset() {
+        ball.x = initial_ball_x;
+        ball.y = initial_ball_y;
+        ball.vel = initial_ball_vel;
+        ball.x_vel = initial_ball_x_vel;
+        ball.y_vel = initial_ball_y_vel;
 
+        player_one.x = 0;
+        player_one.y = initial_player_one_y;
+        player_one.y_vel = initial_player_one_y_vel;
+
+        player_two.x = 0;
+        player_two.y = initial_player_two_y;
+        player_two.y_vel = initial_player_two_y_vel;
+
+        game_over = false;
+
+        field_walls.assign_walls(0, 0, field.field_width, field.field_height);
+        p1_walls.assign_walls(0, 0, player_one.width, player_one.height);
+        p2_walls.assign_walls(0, 0, player_two.width, player_two.height);
     }
 
     void Game::move_player(PlayerData &player,WallGroup &walls, Move move) {

@@ -12,6 +12,18 @@
 using namespace pong::state_files;
 
 namespace pong {
+    struct StepResult {
+        float ball_x = 0;
+        float ball_y = 0;
+        float ball_x_vel = 0;
+        float ball_y_vel = 0;
+        float player_one_y = 0;
+        float player_one_y_vel = 0;
+        float player_two_y = 0;
+        float player_two_y_vel = 0;
+        bool game_over = false;
+    };
+
     class Game {
     public:
         float pi = 3.14159;
@@ -23,9 +35,22 @@ namespace pong {
         FieldData field;
         PlayerData player_one, player_two;
         PhysicsData physics;
+        bool game_over = false;
         Game(int ball_radius = 5, int player_width = 10, int player_height = 40, int field_width = 120, int field_height = 80, int player_offset = 30, float player_accel = 3, float player_top_speed = 10, float ball_accel = 1.05);
-        void step(Move player_one_move, Move player_two_move);
+        StepResult step(Move player_one_move, Move player_two_move);
+        void reset();
         void move_player(PlayerData &player,WallGroup &walls, Move move);
+
+    private:
+        float initial_ball_x = 0;
+        float initial_ball_y = 0;
+        float initial_ball_x_vel = 0;
+        float initial_ball_y_vel = 0;
+        float initial_ball_vel = 10;
+        float initial_player_one_y = 0;
+        float initial_player_two_y = 0;
+        float initial_player_one_y_vel = 0;
+        float initial_player_two_y_vel = 0;
     };
 }
 
