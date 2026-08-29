@@ -1,17 +1,17 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.16)
 project(pong)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(pong src/main.cpp
-        src/state_files/player_data.h
-        src/state_files/ball_data.h
-        src/state_files/umbrella_header.h
-        src/state_files/field_data.h
-        src/state_files/physics_data.h
-        src/state_files/field_data.h
-        src/game.cpp
-        src/game.h
-        src/move.h
-        src/wall.h
-)
+enable_testing()
+
+add_library(pong_core src/game.cpp)
+target_include_directories(pong_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+add_executable(pong src/main.cpp)
+target_link_libraries(pong PRIVATE pong_core)
+
+add_executable(pong_tests tests/game_collision_tests.cpp)
+target_link_libraries(pong_tests PRIVATE pong_core)
+
+add_test(NAME pong_tests COMMAND pong_tests)

@@ -8,10 +8,14 @@
 namespace pong::state_files {
     struct BallData {
     public:
-        int radius, x = 0, y = 0;
-        float angle = 0, vel = 10;
-        BallData(int radius = 5):
-            radius(radius)
+        int radius;
+        float x = 0, y = 0;
+        float x_vel = 0, y_vel = 0;
+        float vel = 10;
+
+        BallData(int radius = 5, float vel = 10):
+            radius(radius),
+            vel(vel)
             {};
     };
 }

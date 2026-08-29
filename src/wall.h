@@ -6,9 +6,16 @@
 #define PONG_WALL_H
 
 namespace pong {
+    enum class WallOrientation {
+        Horizontal,
+        Vertical
+    };
+
     struct Wall {
         int x1,y1,x2,y2;
-        Wall(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0) : x1(x1), y1(y1), x2(x2), y2(y2) {
+        WallOrientation orientation = WallOrientation::Horizontal;
+        Wall(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0, WallOrientation orientation = WallOrientation::Horizontal)
+            : x1(x1), y1(y1), x2(x2), y2(y2), orientation(orientation) {
         }
     };
     struct WallGroup{
@@ -29,12 +36,14 @@ namespace pong {
             wall->y1 = wall->y2 = y;
             wall->x1 = x1;
             wall->x2 = x2;
+            wall->orientation = WallOrientation::Horizontal;
         }
 
         void assign_vertical_wall(Wall *wall, float x, float y1, float y2) {
             wall->x1 = wall->x2 = x;
             wall->y1 = y1;
             wall->y2 = y2;
+            wall->orientation = WallOrientation::Vertical;
         }
     };
 }
