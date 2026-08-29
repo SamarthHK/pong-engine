@@ -36,7 +36,7 @@ namespace pong {
         PlayerData player_one, player_two;
         PhysicsData physics;
         bool game_over = false;
-        Game(int ball_radius = 5, int player_width = 10, int player_height = 40, int field_width = 120, int field_height = 80, int player_offset = 30, float player_accel = 3, float player_top_speed = 10, float ball_accel = 1.05);
+        Game(int ball_radius = 5, int player_width = 10, int player_height = 40, int field_width = 120, int field_height = 80, int player_offset = 30, float player_accel = 3, float player_top_speed = 10, float ball_accel = 1.05, float collision_nudge = 0.001f);
         StepResult step(Move player_one_move, Move player_two_move);
         void reset();
         void move_player(PlayerData &player,WallGroup &walls, Move move);

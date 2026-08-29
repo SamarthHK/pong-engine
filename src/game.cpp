@@ -232,7 +232,7 @@ namespace {
 
 namespace pong {
     Game::Game(int ball_radius, int player_width, int player_height, int field_width, int field_height, int player_offset,
-             float player_accel, float player_top_speed, float ball_accel) {
+             float player_accel, float player_top_speed, float ball_accel, float collision_nudge) {
         ball.radius = ball_radius;
         const float raw_x = static_cast<float>((std::rand() % 200) - 100);
         const float raw_y = static_cast<float>((std::rand() % 200) - 100);
@@ -261,6 +261,7 @@ namespace pong {
         physics.player_top_speed = player_top_speed;
         physics.player_accel = player_accel;
         physics.ball_accel = ball_accel;
+        physics.collision_nudge = collision_nudge;
 
         initial_player_one_y = player_one.y;
         initial_player_two_y = player_two.y;
