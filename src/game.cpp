@@ -14,9 +14,9 @@ using namespace pong::state_files;
 
 namespace pong {
     Game::Game(int ball_radius, int player_width, int player_height, int field_width, int field_height, int player_offset,
-             float player_accel, float player_top_speed, float ball_accel, float collision_nudge) {
+             float player_accel, float player_top_speed, float ball_accel, float ball_vel) {
         ball.radius = ball_radius;
-        ball.vel = 5;
+        ball.vel = ball_vel;
 
         field.field_width = field_width;
         field.field_height = field_height;
@@ -35,11 +35,11 @@ namespace pong {
         reset();
     };
 
-    StepResult Game::step(Move player_one_move, Move player_two_move) {
-        move_player(player_one, p1_walls, player_one_move);
-        move_player(player_two, p2_walls, player_two_move);
-        ball.x += ball.x_vel;
-        ball.y += ball.y_vel;
+    StepResult Game::step(Move player_one_move, Move player_two_move, float delta_time) {
+        move_player(player_one, p1_walls, player_one_move,delta_time);
+        move_player(player_two, p2_walls, player_two_move,delta_time);
+        ball.x += ball.x_vel * delta_time;
+        ball.y += ball.y_vel * delta_time;
         //TODO: Implement ball movement and collision detection
         return StepResult{
             ball.x,
@@ -89,10 +89,10 @@ namespace pong {
         p2_walls.assign_box_walls(player_two.x, player_two.y, player_two.width, player_two.height);
     }
 
-    void Game::move_player(PlayerData &player,Box &walls, Move move) {
-        player.y_vel += physics.player_accel * static_cast<float>(move) * -1.0f; //-1 because the y-axis is inverted in the game
+    void Game::move_player(PlayerData &player,Box &walls, Move move, float delta_time) {
+        player.y_vel += physics.player_accel * delta_time * static_cast<float>(move) * -1.0f; //-1 because the y-axis is inverted in the game
         player.y_vel *= physics.player_friction;
-        player.y += player.y_vel;
+        player.y += player.y_vel * delta_time;
 
         int upper_bound = player.height/2;
         int lower_bound = field.field_height-player.height/2;

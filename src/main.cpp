@@ -15,13 +15,15 @@ int main()
     unsigned windowHeight = 480;
     unsigned frameRate = 60;
 
-    pong::Game game = pong::Game(10,10,100,windowWidth,windowHeight,80,1.5f,10.0f,1.0f,0.1f);
+    pong::Game game = pong::Game(10,10,100,windowWidth,windowHeight,80,2000.0f,500.0f,1.0f,170.0f);
 
     sf::RenderWindow window(sf::VideoMode({windowWidth, windowHeight}), "pong",sf::Style::Titlebar,sf::State::Windowed);
     window.setFramerateLimit(frameRate);
     window.setTitle("pong");
     window.setPosition(sf::Vector2i((screenWidth - windowWidth)/2, (screenHeight - windowHeight)/2));
 
+    sf::Clock clock;
+    pong::Move move;
     //While the window is open this will run:
     while (window.isOpen()) {
         // check all the window's events that were triggered since the last iteration of the loop
@@ -30,8 +32,27 @@ int main()
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
+        int vel = 0;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
+            vel -= 1;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
+            vel += 1;
+        }
+
+        if (vel == 1) {
+            move = pong::Move::UP;
+        } else if (vel == -1) {
+            move = pong::Move::DOWN;
+        } else {
+            move = pong::Move::NONE;
+        }
+
         window.clear(sf::Color::Black);
-        pong::StepResult step_result = game.step(pong::Move::DOWN, pong::Move::DOWN);
+        sf::Time time = clock.restart();
+        pong::StepResult step_result = game.step(move, pong::Move::NONE, time.asSeconds());
 
         sf::CircleShape ball(game.ball.radius);
         ball.setFillColor(sf::Color::Yellow);
