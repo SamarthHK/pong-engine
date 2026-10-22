@@ -90,50 +90,105 @@ namespace pong {
     }
 
     void Game::move_ball(float delta_time) {
-        const float old_ball_x = ball.x;
-        const float old_ball_y = ball.y;
+        float remaining_time = delta_time;
 
-        ball.x += ball.x_vel * delta_time;
-        ball.y += ball.y_vel * delta_time;
+        while (remaining_time > 0.0f) {
+            const float old_ball_x = ball.x;
+            const float old_ball_y = ball.y;
+            const float next_ball_x = old_ball_x + ball.x_vel * remaining_time;
+            const float next_ball_y = old_ball_y + ball.y_vel * remaining_time;
 
-        for (const auto* wall : walls) {
-            if (!wall) {
-                continue;
-            }
+            const Wall* hit_wall = nullptr;
+            bool hit_vertical = false;
+            float collision_time = remaining_time;
+            float target_position = 0.0f;
 
-            const float min_x = std::min(wall->x1, wall->x2);
-            const float max_x = std::max(wall->x1, wall->x2);
-            const float min_y = std::min(wall->y1, wall->y2);
-            const float max_y = std::max(wall->y1, wall->y2);
-
-            if (wall->orientation == WallOrientation::Vertical) {
-                const bool moving_right = ball.x_vel > 0.0f;
-                const bool crossed_x = moving_right
-                    ? (old_ball_x <= wall->x1 && ball.x >= wall->x1)
-                    : (old_ball_x >= wall->x1 && ball.x <= wall->x1);
-                const bool overlaps_y = std::max(old_ball_y, ball.y) >= min_y - ball.radius &&
-                                        std::min(old_ball_y, ball.y) <= max_y + ball.radius;
-
-                if (crossed_x && overlaps_y) {
-                    ball.x_vel *= -1.0f;
-                    ball.x = moving_right ? wall->x1 - ball.radius : wall->x1 + ball.radius;
-                    ball.x_vel *= physics.ball_accel;
-                    return;
+            for (const auto* wall : walls) {
+                if (!wall) {
+                    continue;
                 }
-                continue;
+
+                const float min_x = std::min(wall->x1, wall->x2);
+                const float max_x = std::max(wall->x1, wall->x2);
+                const float min_y = std::min(wall->y1, wall->y2);
+                const float max_y = std::max(wall->y1, wall->y2);
+
+                if (wall->orientation == WallOrientation::Vertical) {
+                    if (ball.x_vel > 0.0f) {
+                        float t_hit = (wall->x1 - ball.radius - old_ball_x) / ball.x_vel;
+                        if (t_hit >= -1e-6f && t_hit <= remaining_time + 1e-6f && t_hit < collision_time) {
+                            const float y_at_hit = old_ball_y + ball.y_vel * t_hit;
+                            if (y_at_hit + ball.radius >= min_y && y_at_hit - ball.radius <= max_y) {
+                                collision_time = t_hit;
+                                hit_wall = wall;
+                                hit_vertical = true;
+                                target_position = wall->x1 - ball.radius;
+                            }
+                        }
+                    }
+                    else if (ball.x_vel < 0.0f) {
+                        float t_hit = (wall->x1 + ball.radius - old_ball_x) / ball.x_vel;
+                        if (t_hit >= -1e-6f && t_hit <= remaining_time + 1e-6f && t_hit < collision_time) {
+                            const float y_at_hit = old_ball_y + ball.y_vel * t_hit;
+                            if (y_at_hit + ball.radius >= min_y && y_at_hit - ball.radius <= max_y) {
+                                collision_time = t_hit;
+                                hit_wall = wall;
+                                hit_vertical = true;
+                                target_position = wall->x1 + ball.radius;
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (ball.y_vel > 0.0f) {
+                        float t_hit = (wall->y1 - ball.radius - old_ball_y) / ball.y_vel;
+                        if (t_hit >= -1e-6f && t_hit <= remaining_time + 1e-6f && t_hit < collision_time) {
+                            const float x_at_hit = old_ball_x + ball.x_vel * t_hit;
+                            if (x_at_hit + ball.radius >= min_x && x_at_hit - ball.radius <= max_x) {
+                                collision_time = t_hit;
+                                hit_wall = wall;
+                                hit_vertical = false;
+                                target_position = wall->y1 - ball.radius;
+                            }
+                        }
+                    }
+                    else if (ball.y_vel < 0.0f) {
+                        float t_hit = (wall->y1 + ball.radius - old_ball_y) / ball.y_vel;
+                        if (t_hit >= -1e-6f && t_hit <= remaining_time + 1e-6f && t_hit < collision_time) {
+                            const float x_at_hit = old_ball_x + ball.x_vel * t_hit;
+                            if (x_at_hit + ball.radius >= min_x && x_at_hit - ball.radius <= max_x) {
+                                collision_time = t_hit;
+                                hit_wall = wall;
+                                hit_vertical = false;
+                                target_position = wall->y1 + ball.radius;
+                            }
+                        }
+                    }
+                }
             }
 
-            const bool moving_down = ball.y_vel > 0.0f;
-            const bool crossed_y = moving_down
-                ? (old_ball_y <= wall->y1 && ball.y >= wall->y1)
-                : (old_ball_y >= wall->y1 && ball.y <= wall->y1);
-            const bool overlaps_x = std::max(old_ball_x, ball.x) >= min_x - ball.radius &&
-                                    std::min(old_ball_x, ball.x) <= max_x + ball.radius;
+            if (hit_wall == nullptr) {
+                ball.x = next_ball_x;
+                ball.y = next_ball_y;
+                return;
+            }
 
-            if (crossed_y && overlaps_x) {
+            ball.x = old_ball_x + ball.x_vel * collision_time;
+            ball.y = old_ball_y + ball.y_vel * collision_time;
+
+            if (hit_vertical) {
+                ball.x = target_position;
+                ball.x_vel *= -1.0f;
+                ball.x_vel *= physics.ball_accel;
+            }
+            else {
+                ball.y = target_position;
                 ball.y_vel *= -1.0f;
-                ball.y = moving_down ? wall->y1 - ball.radius : wall->y1 + ball.radius;
                 ball.y_vel *= physics.ball_accel;
+            }
+
+            remaining_time -= collision_time;
+            if (remaining_time <= 1e-6f) {
                 return;
             }
         }

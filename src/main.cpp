@@ -56,7 +56,7 @@ int main()
 
         sf::CircleShape ball(game.ball.radius);
         ball.setFillColor(sf::Color::Yellow);
-        ball.setPosition(sf::Vector2f(step_result.ball_x, step_result.ball_y));
+        ball.setPosition(sf::Vector2f(step_result.ball_x - game.ball.radius, step_result.ball_y - game.ball.radius));
         window.draw(ball);
 
         sf::RectangleShape paddleOne(sf::Vector2f(game.player_one.width, game.player_one.height));
