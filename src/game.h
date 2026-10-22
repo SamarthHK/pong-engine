@@ -15,19 +15,16 @@ namespace pong {
     struct StepResult {
         float ball_x = 0;
         float ball_y = 0;
-        float ball_x_vel = 0;
-        float ball_y_vel = 0;
+        float player_one_x = 0;
         float player_one_y = 0;
-        float player_one_y_vel = 0;
+        float player_two_x = 0;
         float player_two_y = 0;
-        float player_two_y_vel = 0;
         bool game_over = false;
     };
 
     class Game {
     public:
         float pi = 3.14159;
-        float old_ball_x, old_ball_y, old_player_one_x, old_player_one_y, old_player_two_x, old_player_two_y;
         Box field_walls, p1_walls, p2_walls;
         Wall* walls[12] = {&field_walls.left_wall, &field_walls.right_wall, &field_walls.top_wall, &field_walls.bottom_wall, &p1_walls.left_wall, &p1_walls.right_wall, &p1_walls.top_wall, &p1_walls.bottom_wall, &p2_walls.left_wall, &p2_walls.right_wall, &p2_walls.top_wall, &p2_walls.bottom_wall};
         float t[12];
@@ -40,17 +37,6 @@ namespace pong {
         StepResult step(Move player_one_move, Move player_two_move);
         void reset();
         void move_player(PlayerData &player,Box &walls, Move move);
-
-    private:
-        float initial_ball_x = 0;
-        float initial_ball_y = 0;
-        float initial_ball_x_vel = 0;
-        float initial_ball_y_vel = 0;
-        float initial_ball_vel = 10;
-        float initial_player_one_y = 0;
-        float initial_player_two_y = 0;
-        float initial_player_one_y_vel = 0;
-        float initial_player_two_y_vel = 0;
     };
 }
 

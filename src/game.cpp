@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstddef>
+#include <iostream>
 
 using namespace pong::state_files;
 
@@ -15,19 +16,7 @@ namespace pong {
     Game::Game(int ball_radius, int player_width, int player_height, int field_width, int field_height, int player_offset,
              float player_accel, float player_top_speed, float ball_accel, float collision_nudge) {
         ball.radius = ball_radius;
-        const float raw_x = static_cast<float>((std::rand() % 200) - 100);
-        const float raw_y = static_cast<float>((std::rand() % 200) - 100);
-        const float raw_length = std::sqrt(raw_x * raw_x + raw_y * raw_y);
-        const float normalized_x = nearly_zero(raw_length) ? 1.0f : raw_x / raw_length;
-        const float normalized_y = nearly_zero(raw_length) ? 0.0f : raw_y / raw_length;
-        ball.x_vel = normalized_x * ball.vel;
-        ball.y_vel = normalized_y * ball.vel;
-
-        initial_ball_x = ball.x;
-        initial_ball_y = ball.y;
-        initial_ball_x_vel = ball.x_vel;
-        initial_ball_y_vel = ball.y_vel;
-        initial_ball_vel = ball.vel;
+        ball.vel = 5;
 
         field.field_width = field_width;
         field.field_height = field_height;
@@ -42,12 +31,6 @@ namespace pong {
         physics.player_top_speed = player_top_speed;
         physics.player_accel = player_accel;
         physics.ball_accel = ball_accel;
-        physics.collision_nudge = collision_nudge;
-
-        initial_player_one_y = player_one.y;
-        initial_player_two_y = player_two.y;
-        initial_player_one_y_vel = player_one.y_vel;
-        initial_player_two_y_vel = player_two.y_vel;
 
         reset();
     };
@@ -55,49 +38,74 @@ namespace pong {
     StepResult Game::step(Move player_one_move, Move player_two_move) {
         move_player(player_one, p1_walls, player_one_move);
         move_player(player_two, p2_walls, player_two_move);
-
+        ball.x += ball.x_vel;
+        ball.y += ball.y_vel;
         //TODO: Implement ball movement and collision detection
+        return StepResult{
+            ball.x,
+            ball.y,
+            player_one.x,
+            player_one.y,
+            player_two.x,
+            player_two.y,
+            game_over
+        };
     }
 
     void Game::reset() {
-        ball.x = initial_ball_x;
-        ball.y = initial_ball_y;
-        ball.vel = initial_ball_vel;
-        ball.x_vel = initial_ball_x_vel;
-        ball.y_vel = initial_ball_y_vel;
+        //Assigning random initial velocity to the ball with a random direction keeping magnitude of velocity constant
+        const float rand_x = static_cast<float>(std::rand() % 100 + 100)/200.0f;
+        const float rand_y = static_cast<float>(std::rand() % 200)/200.0f;
+        const float raw_length = std::sqrt(rand_x * rand_x + rand_y * rand_y);
+        const float ratio = ball.vel / raw_length;
+        ball.x_vel = ratio * rand_x;
+        ball.y_vel = ratio * rand_y;
 
-        player_one.x = 0;
-        player_one.y = initial_player_one_y;
-        player_one.y_vel = initial_player_one_y_vel;
+        ball.x = field.field_width/2;
+        ball.y = field.field_height/2;
 
-        player_two.x = 0;
-        player_two.y = initial_player_two_y;
-        player_two.y_vel = initial_player_two_y_vel;
+        //assigning random direction to the ball velocity, one of 4 quadrants, by randomly flipping the signs of x_vel and y_vel
+        const int rand_dir = std::rand() % 4;
+        if (rand_dir == 1) {
+            ball.x_vel *= -1;
+        }else if (rand_dir == 2) {
+            ball.y_vel *= -1;
+        }else if (rand_dir == 3) {
+            ball.x_vel *= -1;
+            ball.y_vel *= -1;
+        }
 
+        player_one.y = field.field_height/2;
+        player_one.x = field.player_offset;
+        player_one.y_vel = 0;
+
+        player_two.y = field.field_height/2;
+        player_two.x = field.field_width - field.player_offset;
+        player_two.y_vel = 0;
         game_over = false;
 
         field_walls.assign_box_walls(0, 0, field.field_width, field.field_height);
-        p1_walls.assign_box_walls(0, 0, player_one.width, player_one.height);
-        p2_walls.assign_box_walls(0, 0, player_two.width, player_two.height);
+        p1_walls.assign_box_walls(player_one.x, player_one.y, player_one.width, player_one.height);
+        p2_walls.assign_box_walls(player_two.x, player_two.y, player_two.width, player_two.height);
     }
 
     void Game::move_player(PlayerData &player,Box &walls, Move move) {
-        player.y_vel += static_cast<int>(move) * physics.player_accel;
-        player.y_vel *= physics.player_accel;
+        player.y_vel += physics.player_accel * static_cast<float>(move) * -1.0f; //-1 because the y-axis is inverted in the game
+        player.y_vel *= physics.player_friction;
         player.y += player.y_vel;
 
-        int upper_bound = field.field_height/2;
-        int lower_bound = field.field_height/-2;
+        int upper_bound = player.height/2;
+        int lower_bound = field.field_height-player.height/2;
 
-        if (player.y < lower_bound) {
+        if (player.y > lower_bound) {
             player.y = lower_bound;
             player.y_vel = 0;
         }
-        else if (player.y > upper_bound) {
+        else if (player.y < upper_bound) {
             player.y = upper_bound;
             player.y_vel = 0;
         }
 
-        walls.assign_box_walls(0, 0, player.width, player.height);
+        walls.assign_box_walls(player.x, player.y, player.width, player.height);
     }
 }

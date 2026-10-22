@@ -43,6 +43,11 @@ namespace pong::state_files {
         Box() : left_wall(), right_wall(), top_wall(), bottom_wall() {};
 
         Box(float x1, float y1, float width_x2, float height_y2, bool centered = true) {
+            Box();
+            assign_box_walls(x1, y1, width_x2, height_y2, centered);
+        }
+
+        void assign_box_walls(float x1, float y1, float width_x2, float height_y2, bool centered = true) {
             if (centered) {
                 assign_horizontal_wall(&top_wall, y1+height_y2/2,x1-width_x2/2, x1+width_x2/2);
                 assign_horizontal_wall(&bottom_wall, y1-height_y2/2, x1-width_x2/2, x1+width_x2/2);
