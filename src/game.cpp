@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <cstddef>
+#include <ctime>
 #include <iostream>
 
 using namespace pong::state_files;
@@ -38,8 +38,7 @@ namespace pong {
     StepResult Game::step(Move player_one_move, Move player_two_move, float delta_time) {
         move_player(player_one, p1_walls, player_one_move,delta_time);
         move_player(player_two, p2_walls, player_two_move,delta_time);
-        ball.x += ball.x_vel * delta_time;
-        ball.y += ball.y_vel * delta_time;
+        move_ball(delta_time);
         //TODO: Implement ball movement and collision detection
         return StepResult{
             ball.x,
@@ -53,6 +52,7 @@ namespace pong {
     }
 
     void Game::reset() {
+        std::srand(static_cast<unsigned int>(std::time(nullptr)));
         //Assigning random initial velocity to the ball with a random direction keeping magnitude of velocity constant
         const float rand_x = static_cast<float>(std::rand() % 100 + 100)/200.0f;
         const float rand_y = static_cast<float>(std::rand() % 200)/200.0f;
@@ -87,6 +87,10 @@ namespace pong {
         field_walls.assign_box_walls(0, 0, field.field_width, field.field_height);
         p1_walls.assign_box_walls(player_one.x, player_one.y, player_one.width, player_one.height);
         p2_walls.assign_box_walls(player_two.x, player_two.y, player_two.width, player_two.height);
+    }
+    void Game::move_ball(float delta_time) {
+        ball.x += ball.x_vel * delta_time;
+        ball.y += ball.y_vel * delta_time;
     }
 
     void Game::move_player(PlayerData &player,Box &walls, Move move, float delta_time) {
