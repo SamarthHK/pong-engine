@@ -61,12 +61,12 @@ int main()
 
         sf::RectangleShape paddleOne(sf::Vector2f(game.player_one.width, game.player_one.height));
         paddleOne.setFillColor(sf::Color::Blue);
-        paddleOne.setPosition(sf::Vector2f(step_result.player_one_x, step_result.player_one_y-game.player_one.height/2));
+        paddleOne.setPosition(sf::Vector2f(step_result.player_one_x, step_result.player_one_y));
         window.draw(paddleOne);
 
         sf::RectangleShape paddleTwo(sf::Vector2f(game.player_two.width, game.player_two.height));
         paddleTwo.setFillColor(sf::Color::Red);
-        paddleTwo.setPosition(sf::Vector2f(step_result.player_two_x, step_result.player_two_y-game.player_two.height/2));
+        paddleTwo.setPosition(sf::Vector2f(step_result.player_two_x, step_result.player_two_y));
         window.draw(paddleTwo);
 
         window.display();

@@ -49,16 +49,20 @@ namespace pong::state_files {
 
         void assign_box_walls(float x1, float y1, float width_x2, float height_y2, bool centered = true) {
             if (centered) {
-                assign_horizontal_wall(&top_wall, y1+height_y2/2,x1-width_x2/2, x1+width_x2/2);
-                assign_horizontal_wall(&bottom_wall, y1-height_y2/2, x1-width_x2/2, x1+width_x2/2);
-                assign_vertical_wall(&left_wall, x1-width_x2/2, y1-height_y2/2, y1+height_y2/2);
-                assign_vertical_wall(&right_wall, x1+width_x2/2, y1-height_y2/2, y1+height_y2/2);
+                assign_horizontal_wall(&top_wall, y1 + height_y2 / 2.0f, x1 - width_x2 / 2.0f, x1 + width_x2 / 2.0f);
+                assign_horizontal_wall(&bottom_wall, y1 - height_y2 / 2.0f, x1 - width_x2 / 2.0f, x1 + width_x2 / 2.0f);
+                assign_vertical_wall(&left_wall, x1 - width_x2 / 2.0f, y1 - height_y2 / 2.0f, y1 + height_y2 / 2.0f);
+                assign_vertical_wall(&right_wall, x1 + width_x2 / 2.0f, y1 - height_y2 / 2.0f, y1 + height_y2 / 2.0f);
                 return;
             }
-            assign_horizontal_wall(&top_wall, height_y2,x1, width_x2);
-            assign_horizontal_wall(&bottom_wall, y1, x1, width_x2);
-            assign_vertical_wall(&left_wall, x1, y1, height_y2);
-            assign_vertical_wall(&right_wall, width_x2, y1, height_y2);
+
+            const float right_x = x1 + width_x2;
+            const float bottom_y = y1 + height_y2;
+
+            assign_horizontal_wall(&top_wall, y1, x1, right_x);
+            assign_horizontal_wall(&bottom_wall, bottom_y, x1, right_x);
+            assign_vertical_wall(&left_wall, x1, y1, bottom_y);
+            assign_vertical_wall(&right_wall, right_x, y1, bottom_y);
         }
 
     private:

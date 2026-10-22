@@ -61,8 +61,8 @@ namespace pong {
         ball.x_vel = ratio * rand_x;
         ball.y_vel = ratio * rand_y;
 
-        ball.x = field.field_width/2;
-        ball.y = field.field_height/2;
+        ball.x = field.field_width / 2.0f;
+        ball.y = field.field_height / 2.0f;
 
         //assigning random direction to the ball velocity, one of 4 quadrants, by randomly flipping the signs of x_vel and y_vel
         const int rand_dir = std::rand() % 4;
@@ -75,45 +75,66 @@ namespace pong {
             ball.y_vel *= -1;
         }
 
-        player_one.y = field.field_height/2;
         player_one.x = field.player_offset;
+        player_one.y = (field.field_height - player_one.height) / 2.0f;
         player_one.y_vel = 0;
 
-        player_two.y = field.field_height/2;
-        player_two.x = field.field_width - field.player_offset;
+        player_two.x = field.field_width - field.player_offset - player_two.width;
+        player_two.y = (field.field_height - player_two.height) / 2.0f;
         player_two.y_vel = 0;
         game_over = false;
 
         field_walls.assign_box_walls(0, 0, field.field_width, field.field_height, false);
-        p1_walls.assign_box_walls(player_one.x, player_one.y, player_one.width, player_one.height);
-        p2_walls.assign_box_walls(player_two.x, player_two.y, player_two.width, player_two.height);
+        p1_walls.assign_box_walls(player_one.x, player_one.y, player_one.width, player_one.height, false);
+        p2_walls.assign_box_walls(player_two.x, player_two.y, player_two.width, player_two.height, false);
     }
 
     void Game::move_ball(float delta_time) {
-        float old_ball_x = ball.x, old_ball_y = ball.y, new_ball_x = ball.x += ball.x_vel * delta_time, new_ball_y = ball.y += ball.y_vel * delta_time;
-        for (int i = 0; i != std::size(walls); ++i) {
-            const auto& wall_raw = walls[i];
-            Wall wall = Wall(wall_raw->x1 - ball.radius, wall_raw->y1 - ball.radius, wall_raw->x2 + ball.radius,
-                             wall_raw->y2 + ball.radius, wall_raw->orientation);
-            distance[i] = 100;
-            if (wall.orientation == WallOrientation::Vertical) {
-                if (std::min(old_ball_x, new_ball_x) <= wall.x1 && wall.x1 <= std::max(old_ball_x, new_ball_x)) {
-                    if (std::min(wall.y1, wall.y2) <= new_ball_y && new_ball_y <= std::max(wall.y1, wall.y2)) {
-                        distance[i] = abs(new_ball_x - old_ball_x);
-                    }
+        const float old_ball_x = ball.x;
+        const float old_ball_y = ball.y;
+
+        ball.x += ball.x_vel * delta_time;
+        ball.y += ball.y_vel * delta_time;
+
+        for (const auto* wall : walls) {
+            if (!wall) {
+                continue;
+            }
+
+            const float min_x = std::min(wall->x1, wall->x2);
+            const float max_x = std::max(wall->x1, wall->x2);
+            const float min_y = std::min(wall->y1, wall->y2);
+            const float max_y = std::max(wall->y1, wall->y2);
+
+            if (wall->orientation == WallOrientation::Vertical) {
+                const bool moving_right = ball.x_vel > 0.0f;
+                const bool crossed_x = moving_right
+                    ? (old_ball_x <= wall->x1 && ball.x >= wall->x1)
+                    : (old_ball_x >= wall->x1 && ball.x <= wall->x1);
+                const bool overlaps_y = std::max(old_ball_y, ball.y) >= min_y - ball.radius &&
+                                        std::min(old_ball_y, ball.y) <= max_y + ball.radius;
+
+                if (crossed_x && overlaps_y) {
+                    ball.x_vel *= -1.0f;
+                    ball.x = moving_right ? wall->x1 - ball.radius : wall->x1 + ball.radius;
+                    ball.x_vel *= physics.ball_accel;
+                    return;
                 }
                 continue;
             }
-            if (std::min(old_ball_y, new_ball_y) <= wall.y1 && wall.y1 <= std::max(old_ball_y, new_ball_y)) {
-                if (std::min(wall.x1, wall.x2) <= new_ball_x && new_ball_x <= std::max(wall.x1, wall.x2)) {
-                    distance[i] = abs(new_ball_y - old_ball_y);
-                }
 
-            }
-        }
-        for (const auto& dist : distance) {
-            if (dist != 100) {
-                std::cout << "Found collision with wall at distance: " << dist << std::endl;
+            const bool moving_down = ball.y_vel > 0.0f;
+            const bool crossed_y = moving_down
+                ? (old_ball_y <= wall->y1 && ball.y >= wall->y1)
+                : (old_ball_y >= wall->y1 && ball.y <= wall->y1);
+            const bool overlaps_x = std::max(old_ball_x, ball.x) >= min_x - ball.radius &&
+                                    std::min(old_ball_x, ball.x) <= max_x + ball.radius;
+
+            if (crossed_y && overlaps_x) {
+                ball.y_vel *= -1.0f;
+                ball.y = moving_down ? wall->y1 - ball.radius : wall->y1 + ball.radius;
+                ball.y_vel *= physics.ball_accel;
+                return;
             }
         }
     }
@@ -123,18 +144,18 @@ namespace pong {
         player.y_vel *= physics.player_friction;
         player.y += player.y_vel * delta_time;
 
-        int upper_bound = player.height/2;
-        int lower_bound = field.field_height-player.height/2;
+        const float min_y = 0.0f;
+        const float max_y = static_cast<float>(field.field_height - player.height);
 
-        if (player.y > lower_bound) {
-            player.y = lower_bound;
+        if (player.y < min_y) {
+            player.y = min_y;
             player.y_vel = 0;
         }
-        else if (player.y < upper_bound) {
-            player.y = upper_bound;
+        else if (player.y > max_y) {
+            player.y = max_y;
             player.y_vel = 0;
         }
 
-        walls.assign_box_walls(player.x, player.y, player.width, player.height);
+        walls.assign_box_walls(player.x, player.y, player.width, player.height, false);
     }
 }
