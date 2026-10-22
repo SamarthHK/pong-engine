@@ -84,13 +84,38 @@ namespace pong {
         player_two.y_vel = 0;
         game_over = false;
 
-        field_walls.assign_box_walls(0, 0, field.field_width, field.field_height);
+        field_walls.assign_box_walls(0, 0, field.field_width, field.field_height, false);
         p1_walls.assign_box_walls(player_one.x, player_one.y, player_one.width, player_one.height);
         p2_walls.assign_box_walls(player_two.x, player_two.y, player_two.width, player_two.height);
     }
+
     void Game::move_ball(float delta_time) {
-        ball.x += ball.x_vel * delta_time;
-        ball.y += ball.y_vel * delta_time;
+        float old_ball_x = ball.x, old_ball_y = ball.y, new_ball_x = ball.x += ball.x_vel * delta_time, new_ball_y = ball.y += ball.y_vel * delta_time;
+        for (int i = 0; i != std::size(walls); ++i) {
+            const auto& wall_raw = walls[i];
+            Wall wall = Wall(wall_raw->x1 - ball.radius, wall_raw->y1 - ball.radius, wall_raw->x2 + ball.radius,
+                             wall_raw->y2 + ball.radius, wall_raw->orientation);
+            distance[i] = 100;
+            if (wall.orientation == WallOrientation::Vertical) {
+                if (std::min(old_ball_x, new_ball_x) <= wall.x1 && wall.x1 <= std::max(old_ball_x, new_ball_x)) {
+                    if (std::min(wall.y1, wall.y2) <= new_ball_y && new_ball_y <= std::max(wall.y1, wall.y2)) {
+                        distance[i] = abs(new_ball_x - old_ball_x);
+                    }
+                }
+                continue;
+            }
+            if (std::min(old_ball_y, new_ball_y) <= wall.y1 && wall.y1 <= std::max(old_ball_y, new_ball_y)) {
+                if (std::min(wall.x1, wall.x2) <= new_ball_x && new_ball_x <= std::max(wall.x1, wall.x2)) {
+                    distance[i] = abs(new_ball_y - old_ball_y);
+                }
+
+            }
+        }
+        for (const auto& dist : distance) {
+            if (dist != 100) {
+                std::cout << "Found collision with wall at distance: " << dist << std::endl;
+            }
+        }
     }
 
     void Game::move_player(PlayerData &player,Box &walls, Move move, float delta_time) {
