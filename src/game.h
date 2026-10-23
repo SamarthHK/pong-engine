@@ -19,6 +19,7 @@ namespace pong {
         float player_one_y = 0;
         float player_two_x = 0;
         float player_two_y = 0;
+        int winner = 0;
         bool game_over = false;
     };
 
@@ -34,6 +35,7 @@ namespace pong {
         Box field_walls, p1_walls, p2_walls;
         Wall* walls[12] = {&field_walls.left_wall, &field_walls.right_wall, &field_walls.top_wall, &field_walls.bottom_wall, &p1_walls.left_wall, &p1_walls.right_wall, &p1_walls.top_wall, &p1_walls.bottom_wall, &p2_walls.left_wall, &p2_walls.right_wall, &p2_walls.top_wall, &p2_walls.bottom_wall};
         float distance[12];
+        int winner = 0;
         PhysicsData physics;
         void reset();
         void move_ball(float delta_time);

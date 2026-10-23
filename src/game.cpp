@@ -36,10 +36,14 @@ namespace pong {
     };
 
     StepResult Game::step(Move player_one_move, Move player_two_move, float delta_time) {
+        if (game_over) {
+            reset();
+        }
+
         move_player(player_one, p1_walls, player_one_move,delta_time);
         move_player(player_two, p2_walls, player_two_move,delta_time);
         move_ball(delta_time);
-        //TODO: Implement ball movement and collision detection
+
         return StepResult{
             ball.x,
             ball.y,
@@ -47,6 +51,7 @@ namespace pong {
             player_one.y,
             player_two.x,
             player_two.y,
+            winner,
             game_over
         };
     }
@@ -82,6 +87,7 @@ namespace pong {
         player_two.x = field.field_width - field.player_offset - player_two.width;
         player_two.y = (field.field_height - player_two.height) / 2.0f;
         player_two.y_vel = 0;
+        winner = 0;
         game_over = false;
 
         field_walls.assign_box_walls(0, 0, field.field_width, field.field_height, false);
@@ -90,6 +96,19 @@ namespace pong {
     }
 
     void Game::move_ball(float delta_time) {
+        auto assign_round_winner = [this](const Wall* wall) {
+            if (wall == &field_walls.left_wall) {
+                winner = 2;
+                game_over = true;
+                return;
+            }
+
+            if (wall == &field_walls.right_wall) {
+                winner = 1;
+                game_over = true;
+            }
+        };
+
         float remaining_time = delta_time;
 
         while (remaining_time > 0.0f) {
@@ -170,6 +189,11 @@ namespace pong {
             if (hit_wall == nullptr) {
                 ball.x = next_ball_x;
                 ball.y = next_ball_y;
+                return;
+            }
+
+            assign_round_winner(hit_wall);
+            if (game_over) {
                 return;
             }
 

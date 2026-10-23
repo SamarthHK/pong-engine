@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "state_files/umbrella_header.h"
 #include <SFML/Graphics.hpp>
 #include "game.h"
@@ -53,7 +55,9 @@ int main()
         window.clear(sf::Color::Black);
         sf::Time time = clock.restart();
         pong::StepResult step_result = game.step(move, pong::Move::NONE, time.asSeconds());
-
+        if (step_result.game_over) {
+            std::cout << step_result.winner << std::endl;
+        }
         sf::CircleShape ball(game.ball.radius);
         ball.setFillColor(sf::Color::Yellow);
         ball.setPosition(sf::Vector2f(step_result.ball_x - game.ball.radius, step_result.ball_y - game.ball.radius));
